@@ -40,6 +40,7 @@ void loop() {
         tone(buzzerPin,i); //turn the buzzer on    
       }else{
         noTone(buzzerPin);      
+        break;
       }
       cm= getCentimeters();
     }
