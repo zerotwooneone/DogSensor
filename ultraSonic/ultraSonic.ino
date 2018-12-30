@@ -31,7 +31,6 @@ void setup() {
 void loop() {
   long cm= getCentimeters();
   
-  delay(250);
   if(cm < minimumCentimeters)
   {
     for(int i = 200;i <= 800;i++) //frequence loop from 200 to 800
