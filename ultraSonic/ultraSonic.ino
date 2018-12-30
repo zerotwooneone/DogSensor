@@ -12,7 +12,12 @@
  
 int trigPin = 11;    // Trigger
 int echoPin = 12;    // Echo
-long duration, cm, inches;
+
+
+const int buzzerPin = 3;//the buzzer pin attach to
+int fre;//set the variable to store the frequence value
+
+const int minimumCentimeters =91;
  
 void setup() {
   //Serial Port begin
@@ -20,9 +25,32 @@ void setup() {
   //Define inputs and outputs
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+  pinMode(buzzerPin,OUTPUT);
 }
  
 void loop() {
+  long cm= getCentimeters();
+  
+  delay(250);
+  if(cm < minimumCentimeters)
+  {
+    for(int i = 200;i <= 800;i++) //frequence loop from 200 to 800
+    {
+      if(cm < minimumCentimeters){
+        tone(buzzerPin,i); //turn the buzzer on    
+      }else{
+        noTone(buzzerPin);      
+      }
+      cm= getCentimeters();
+    }
+  }
+   noTone(buzzerPin);
+}
+
+/*
+ * This takes at least 15 ms to run 
+ */
+long getCentimeters(){
   // The sensor is triggered by a HIGH pulse of 10 or more microseconds.
   // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
   digitalWrite(trigPin, LOW);
@@ -35,17 +63,15 @@ void loop() {
   // duration is the time (in microseconds) from the sending
   // of the ping to the reception of its echo off of an object.
   pinMode(echoPin, INPUT);
+  long duration;
   duration = pulseIn(echoPin, HIGH);
  
   // Convert the time into a distance
+  long cm;
   cm = (duration/2) / 29.1;     // Divide by 29.1 or multiply by 0.0343
-  inches = (duration/2) / 74;   // Divide by 74 or multiply by 0.0135
   
-  Serial.print(inches);
-  Serial.print("in, ");
   Serial.print(cm);
   Serial.print("cm");
   Serial.println();
-  
-  delay(250);
+  return cm;
 }
