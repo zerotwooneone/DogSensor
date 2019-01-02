@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.IO.Ports;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Zh.ArduinoSerial;
+using Zh.ArduinoSerial.Reactive;
 
 namespace SerialConsole
 {
@@ -26,22 +29,26 @@ namespace SerialConsole
             var spf = new SerialPortFactory();
             var serialPort = spf.Create("COM3", baudRate: 115200);
 
-            void HandleDataReceived(object sender, SerialDataReceivedEventArgs e)
-            {
-                int x = 0;
-                var data = serialPort.ReadLine();
-                Console.WriteLine(data);
-            }
-
-            serialPort.DataReceived += HandleDataReceived;
-            serialPort.Open();
-
+            var of = new ObservableFactory();
+            var linesObservable = of.GetLinesObservable(serialPort);
+            linesObservable.Subscribe(Console.WriteLine);
+            
             var sw = Stopwatch.StartNew();
-            while (sw.Elapsed.TotalMinutes < 1 ||
-                   serialPort.IsOpen)
+            while (sw.Elapsed.TotalMinutes < 1 &&
+                   !serialPort.IsOpen)
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(5));
+                try
+                {
+                    serialPort.Open();
+                }
+                catch (IOException IoException) when(IoException.Message.EndsWith("does not exist."))
+                {
+                    //we ignore this error and try again
+                }
+                await Task.Delay(TimeSpan.FromMilliseconds(300));
             }
+
+            await linesObservable.ToTask();
         }
 
         private static void ListAvailiblePorts()
