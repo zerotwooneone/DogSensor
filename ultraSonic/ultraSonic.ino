@@ -19,7 +19,7 @@ DelayRun trigOnTask(trigCleanupMilliseconds, turnOnTrig, &trigOffTask);
 
 void setup() {
   //Serial Port begin
-  Serial.begin (9600);
+  Serial.begin (115200);
   
   // -- We close the loop, so after offTask the onTask will start.
   trigOffTask.followedBy = &trigOnTask;
@@ -58,9 +58,9 @@ boolean turnOffTrig(Task* task) {
     noTone(buzzerPin);
   }
 
-  /*Serial.print(cm);
+  Serial.print(cm);
   Serial.print("cm");
-  Serial.println();*/
+  Serial.println();
   
   return true; // -- Return true to enable the "followedBy" task.
 }
